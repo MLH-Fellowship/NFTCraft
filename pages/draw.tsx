@@ -9,6 +9,8 @@ import {
   DrawCanvasToolBox,
   DrawMain,
   DrawCanvasToolBoxButton,
+  MintButton,
+  ColorItem,
 } from "./../styles/Draw/styles";
 import {
   ReactSketchCanvas,
@@ -73,6 +75,15 @@ const Draw: NextPage = () => {
       });
   };
 
+  const onChangePenColor = (color: string) => {
+    if (color) {
+      setCanvasProps((prev) => ({
+        ...prev,
+        strokeColor: color,
+      }));
+    }
+  };
+
   return (
     <div>
       <Head>
@@ -130,7 +141,33 @@ const Draw: NextPage = () => {
               Clear
             </DrawCanvasToolBoxButton>
           </DrawCanvasToolBox>
-          <DrawCanvasColorDrawer>Color Box</DrawCanvasColorDrawer>
+          <MintButton>Mint</MintButton>
+          <DrawCanvasColorDrawer>
+            <ColorItem
+              bg="#78e0dc"
+              onClick={() => onChangePenColor("#78e0dc")}
+            />
+            <ColorItem
+              bg="#6e64d2"
+              onClick={() => onChangePenColor("#6e64d2")}
+            />
+            <ColorItem
+              bg="#fde74c"
+              onClick={() => onChangePenColor("#fde74c")}
+            />
+            <ColorItem
+              bg="#f14579"
+              onClick={() => onChangePenColor("#f14579")}
+            />
+            <ColorItem
+              bg="#97fb98"
+              onClick={() => onChangePenColor("#97fb98")}
+            />
+            <ColorItem
+              bg="#ffffff"
+              onClick={() => onChangePenColor("#ffffff")}
+            />
+          </DrawCanvasColorDrawer>
         </DrawCanvasToolbarContainer>
       </DrawMain>
     </div>

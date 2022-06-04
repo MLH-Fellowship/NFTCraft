@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 interface BtnProps {
-  bg: string;
-  boxColor: string;
+  bg?: string;
+  boxColor?: string;
 }
 
 export const DrawMain = styled.main`
@@ -18,6 +18,7 @@ export const DrawCanvasContainer = styled.div`
 export const DrawCanvasToolbarContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 0 8rem;
 `;
 
@@ -35,6 +36,7 @@ export const DrawCanvasToolBoxButton = styled.button<BtnProps>`
   margin-right: 7.5px;
   cursor: pointer;
   transition: all 0.2s;
+  outline: none;
 
   &:active {
     transform: translateY(4px);
@@ -42,6 +44,49 @@ export const DrawCanvasToolBoxButton = styled.button<BtnProps>`
   }
 `;
 
-export const DrawCanvasToolBox = styled.div``;
+export const MintButton = styled.button`
+  background: radial-gradient(circle at 25% 30%, #f1c909, transparent 40%),
+    radial-gradient(circle at 90% 10%, #1bc9e1, transparent 50%),
+    radial-gradient(circle at 70% 60%, #e6327f, transparent 30%),
+    linear-gradient(45deg, #a44129, #b61264, #712ead, #0fabbd);
+  font-weight: bold;
+  padding: 1.25rem;
+  font-size: 1.6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 15rem;
 
-export const DrawCanvasColorDrawer = styled.div``;
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+export const DrawCanvasToolBox = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const DrawCanvasColorDrawer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const ColorItem = styled.div<BtnProps>`
+  width: 3rem;
+  height: 3rem;
+  background-color: ${({ bg }) => bg};
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  margin-right: 10px;
+  transition: all 0.3s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+  cursor: pointer;
+
+  &:last-child {
+    margin-right: 0px;
+  }
+`;
