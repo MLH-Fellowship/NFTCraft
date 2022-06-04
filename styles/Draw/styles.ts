@@ -11,7 +11,8 @@ export const DrawMain = styled.main`
 `;
 
 export const DrawCanvasContainer = styled.div`
-  padding: 4rem;
+  margin-top: 3rem;
+  padding: 3rem 20rem;
   height: 75vh;
 `;
 
@@ -19,7 +20,7 @@ export const DrawCanvasToolbarContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 8rem;
+  padding: 0 24rem;
 `;
 
 export const DrawCanvasToolBoxButton = styled.button<BtnProps>`
