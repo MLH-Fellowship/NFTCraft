@@ -77,6 +77,10 @@ const Draw: NextPage = () => {
 
     // * ADD wallet here
 
+
+    const wallet = {}
+
+
 		const arweave = Arweave.init({
 			host: 'arweave.net',
 			port: 443,
