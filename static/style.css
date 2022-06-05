@@ -1,131 +1,162 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&display=swap');
-
-*{
+body{
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
-}
-.hero{
-    width: 100%;
+    font-family: 'Poppins', sans-serif;
     height: 100vh;
-    background-color: #000000;
-    background-size: cover;
-    background-position: center;
+    color: white;
+
+}
+
+section{
     position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    min-height: 400px;
+    padding: 10px 20vw;
+}
+
+.container{
+    padding-left: 8%;
+    padding-right: 8%;
+    box-sizing: border-box;
+    background: #000;
+}
+
+.navbar{
+    height: 12%;
+    display: flex;
+    align-items: center;
+}
+
+.about{
+    background: #061652;
+    height: 50vh;
+}
+
+.logo{
+    width: 50px;
+    cursor: pointer;
+}
+
+.menu-icon{
+    width: 30px;
+    cursor: pointer;
+    margin-right: 40px;
 }
 
 nav{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100px;
-    padding: 10px 90px;
-    box-sizing: border-box;
-    background: rgba(0,0,0,0.6);
-    border-bottom: 1px solid #fff;
+    flex: 1;
+    text-align: right;
 }
 
-nav .logo{
-    padding: 22px 20px;
-    height: 80px;
-    float: left;
-    font-size: 24px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: #fff;
-}
-
-nav ul{
+nav ul li{
     list-style: none;
-    float: right;
-    margin: 0;
-    padding: 0;
-    display: flex;
+    display: inline-block;
+    margin-left: 60px;
 }
 
 nav ul li a{
-    line-height: 80px;
-    color: #fff;
-    padding: 12px 30px;
     text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-
-button{
-    color: #fbfcfd;
-    padding: 10px 25px;
-    background: transparent;
-    border: 1px solid #fff;
-    border-radius: 20px;
-    outline: none;
-    cursor: pointer;
-    align-items: right;
-    top: 2%;
-    right: 2%;
-}
-
-.content{
-    color: #fbfcfd;
-    position: absolute;
-    top: 50%;
-    left: 8%;
-    transform: translateY(-50%);
-    z-index: 2;
-}
-
-h1{
-    font-size: 80px;
-    margin: 10px 0 30px;
-    line-height: 80px;
-}
-
-video {
-    position: relative;
-    opacity: 0.9;
-    object-fit: fill;
-    left: 150%;
-    top: 40%
-}
-
-footer{
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    background: linear-gradient(to right, #00093c, #2d0b00);
     color: #fff;
-    padding: 100px 0 30px;
-    border-top-left-radius: 125px;
-    font-size: 13px;
-    line-height: 20px;
-
+    font-size: 13;
 }
 
 .row{
-    width: 85%;
-    margin: auto;
     display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
+    height: 80%;
+    padding: 115px 5px;
+    text-align: left;
 }
 
-.col{
-    flex-basis: 25%;
-    padding: 10px;
+col{
+    flex-basis: 15%;
 }
 
-.col h3 {
-    width: fit-content;
-    margin-bottom: 40px;
+h1{
+    color: #fff;
+    font-size: 80px;
+}
+
+p{
+    color: #fff;
+    font-size: 20px;
+    
+}
+
+button{
     position: relative;
+    text-align: center;
+    width: 180px;
+    color: #000;
+    font-size: 12px;
+    padding: 12px 0;
+    background: #fff;
+    border: 5px solid;
+    border-radius: 100px;
+    outline: none;
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    cursor: pointer;
+    transition: 1.5s;
 }
 
-.email-id{
-    width: fit-content;
-    border-bottom: 1px solid #ccc;
-    margin: 20px 0;
+button:hover{
+    box-shadow: 0 5px 50px 0 #15f4ee inset, 0 5px 50px 0 #15f4ee,
+    0 5px 50px 0 #15f4ee inset, 0 5px 50px 0 #15f4ee;
+    text-shadow: 0 0 5px #15f4ee, 0 0 5px #15f4ee;
+}
+.vid{
+    width: 20px;
+    height: 23px;
+    display: inline-block;
+    border-radius: 10px;
+    padding: 155px 325px;
+    box-sizing: border-box;
+    background-size: cover;
+}
+
+.main{
+    background: linear-gradient(120deg, #050514,#000) ;
+    height: 90vh;
+}
+
+.wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.wave svg {
+    position: relative;
+    display: block;
+    width: calc(130% + 1.3px);
+    height: 192px;
+}
+
+.wave .shape-fill {
+    fill: #061652;
+}
+
+.spacer {
+    aspect-ratio: 960/300;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.layer1 {
+    background-image: url(../static/modwave.svg);
+
+}
+
+.inside{
+    align-items: left;
+    
 }
