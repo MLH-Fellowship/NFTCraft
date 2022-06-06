@@ -17,6 +17,13 @@ import {
   ReactSketchCanvasRef,
   ReactSketchCanvasProps,
 } from "react-sketch-canvas";
+import Arweave from "arweave";
+import { actions, Connection } from "@metaplex/js";
+import { useAppSelector } from "../hooks/hooks";
+import ConnectWalletModal from "../components/Modals/ConnectWallet";
+import ErrorModal from "../components/Modals/ErrorModal";
+import LoadingModal from "../components/Modals/Loading";
+import SuccessModal from "../components/Modals/SuccessModal";
 
 const Draw: NextPage = () => {
   const [canvasProps, setCanvasProps] = useState<
@@ -38,41 +45,205 @@ const Draw: NextPage = () => {
     withTimestamp: true,
     allowOnlyPointerType: "all",
   });
-  const [currentSelectedTBItem, setCurrentSelectedTBItem] =
-    useState<string>("");
-  const [currentSelectedTColor, setCurrentSelectedColor] = useState<string>("");
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
+  const [showLoading, setShowLoading] = useState<boolean>(false);
+  const [showError, setShowError] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const canvasRef = createRef<ReactSketchCanvasRef>();
+  const walletAddress = useAppSelector((state) => state.wallet.walletAddress);
 
   // Canvas Handlers
   const onPenHandler = () => {
-    canvasRef.current.eraseMode(false);
+    if (canvasRef.current) {
+      canvasRef.current.eraseMode(false);
+    }
   };
 
   const onEraserHandler = () => {
-    canvasRef.current.eraseMode(true);
+    if (canvasRef.current) {
+      canvasRef.current.eraseMode(true);
+    }
   };
 
   const onClearCanvasHandler = () => {
-    canvasRef.current.resetCanvas();
+    if (canvasRef.current) {
+      canvasRef.current.resetCanvas();
+    }
   };
 
   const onUndoHandler = () => {
-    canvasRef.current.undo();
+    if (canvasRef.current) {
+      canvasRef.current.undo();
+    }
   };
 
   const onRedoHandler = () => {
-    canvasRef.current.redo();
+    if (canvasRef.current) {
+      canvasRef.current.redo();
+    }
   };
 
   const onGetCanvasImageHandler = () => {
-    canvasRef.current
-      .exportImage("png")
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    if (!walletAddress) {
+      setShowConnectModal(true);
+      return;
+    }
+    setShowLoading(true);
+    // Wallet credentials
+    const wallet = {
+      kty: process.env.WALLET_KTY,
+      n: process.env.WALLET_N,
+      e: process.env.WALLET_E,
+      d: process.env.WALLET_D,
+      p: process.env.WALLET_P,
+      q: process.env.WALLET_Q,
+      dp: process.env.WALLET_DP,
+      dq: process.env.WALLET_DQ,
+      qi: process.env.WALLET_QI,
+    };
+
+    console.log(wallet);
+
+    const arweave = Arweave.init({
+      host: "arweave.net",
+      port: 443,
+      protocol: "https",
+      timeout: 20000,
+      logging: false,
+    });
+
+    if (canvasRef.current) {
+      canvasRef.current
+        .exportImage("png")
+        .then((data) => {
+          fetch(data)
+            .then((res) => res.blob())
+            .then(async (blob) => {
+              const reader = new FileReader();
+              reader.readAsArrayBuffer(blob);
+              reader.onload = async () => {
+                try {
+                  if (reader.result) {
+                    const file = Buffer.from(reader.result);
+                    console.log("---uploading image to arweave---");
+                    const transaction = await arweave.createTransaction(
+                      {
+                        data: file,
+                      },
+                      wallet
+                    );
+                    transaction.addTag("Content-Type", "image/png");
+                    await arweave.transactions.sign(transaction, wallet);
+                    const response = await arweave.transactions.post(
+                      transaction,
+                      wallet
+                    );
+                    const id = transaction.id;
+                    const imageUrl = id
+                      ? `https://arweave.net/${id}`
+                      : undefined;
+                    console.log("imageUrl", imageUrl);
+                    console.log("---image upload finished ---");
+
+                    //  *  Upload metadata to Arweave
+                    const metadata = {
+                      name: "Custom NFT #1",
+                      symbol: "CNFT",
+                      description: "A description about my custom NFT #1",
+                      seller_fee_basis_points: 500,
+                      external_url: "https://www.customnft.com/",
+                      attributes: [
+                        {
+                          trait_type: "NFT type",
+                          value: "Custom",
+                        },
+                      ],
+                      collection: {
+                        name: "Test Collection",
+                        family: "Custom NFTs",
+                      },
+                      properties: {
+                        files: [
+                          {
+                            uri: imageUrl,
+                            type: "image/png",
+                          },
+                        ],
+                        category: "image",
+                        maxSupply: 0,
+                        creators: [
+                          {
+                            address: walletAddress, // usesrs public address
+                            share: 100,
+                          },
+                        ],
+                      },
+                      image: imageUrl,
+                    };
+
+                    const metadataRequest = JSON.stringify(metadata);
+                    console.log("---uploading metadata to arweave---");
+
+                    const metadataTransaction = await arweave.createTransaction(
+                      {
+                        data: metadataRequest,
+                      },
+                      wallet
+                    );
+
+                    metadataTransaction.addTag(
+                      "Content-Type",
+                      "application/json"
+                    );
+
+                    await arweave.transactions.sign(
+                      metadataTransaction,
+                      wallet
+                    );
+
+                    console.log("metadata txid", metadataTransaction.id);
+
+                    console.log(
+                      await arweave.transactions.post(metadataTransaction)
+                    );
+                    const metaURL = metadataTransaction.id
+                      ? `https://arweave.net/${metadataTransaction.id}`
+                      : undefined;
+                    console.log("---metadata upload finished 🚀 🚀 ---");
+
+                    // * mint NFT
+                    await mintNFT(metaURL);
+                    setShowLoading(false);
+                  }
+                } catch (err) {
+                  setShowLoading(false);
+                  setShowError(true);
+                  console.log(err);
+                }
+              };
+            });
+        })
+        .catch((e) => {
+          console.log(e);
+          setShowLoading(false);
+        });
+    }
+  };
+
+  const mintNFT = async (meta: string | undefined) => {
+    console.log("---minting NFT---");
+    const connection = new Connection("devnet");
+    const { solana } = window;
+    console.log("meta url is coming from mint --->", meta, solana);
+    const mintNFTResponse = await actions.mintNFT({
+      connection,
+      wallet: solana,
+      uri: `${meta}`,
+      maxSupply: 1,
+    });
+    console.log(mintNFTResponse);
+    console.log("---NFT minted sucessfully 🟢---");
+    setShowSuccess(true);
   };
 
   const onChangePenColor = (color: string) => {
@@ -92,6 +263,19 @@ const Draw: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DrawMain>
+        <ConnectWalletModal
+          show={showConnectModal}
+          closeModal={() => setShowConnectModal(false)}
+        />
+        <ErrorModal show={showError} closeModal={() => setShowError(false)} />
+        <SuccessModal
+          show={showSuccess}
+          closeModal={() => setShowSuccess(false)}
+        />
+        <LoadingModal
+          show={showLoading}
+          closeModal={() => setShowLoading(false)}
+        />
         <Header />
         <DrawCanvasContainer>
           <ReactSketchCanvas
@@ -141,7 +325,7 @@ const Draw: NextPage = () => {
               Clear
             </DrawCanvasToolBoxButton>
           </DrawCanvasToolBox>
-          <MintButton>Mint</MintButton>
+          <MintButton onClick={onGetCanvasImageHandler}>Mint</MintButton>
           <DrawCanvasColorDrawer>
             <ColorItem
               bg="#78e0dc"
