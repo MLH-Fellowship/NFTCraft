@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { useState, createRef } from "react";
+import { useState, createRef, useEffect } from "react";
 import Head from "next/head";
 import Header from "../components/Header";
 import {
@@ -24,6 +24,7 @@ import ConnectWalletModal from "../components/Modals/ConnectWallet";
 import ErrorModal from "../components/Modals/ErrorModal";
 import LoadingModal from "../components/Modals/Loading";
 import SuccessModal from "../components/Modals/SuccessModal";
+import axios from "axios";
 
 const Draw: NextPage = () => {
   const [canvasProps, setCanvasProps] = useState<
@@ -101,8 +102,6 @@ const Draw: NextPage = () => {
       dq: process.env.WALLET_DQ,
       qi: process.env.WALLET_QI,
     };
-
-    console.log(wallet);
 
     const arweave = Arweave.init({
       host: "arweave.net",
@@ -182,6 +181,12 @@ const Draw: NextPage = () => {
                     };
 
                     const metadataRequest = JSON.stringify(metadata);
+
+                    const postData = {
+                      imageUrl: metadata.image,
+                      address: metadata.properties.creators[0].address,
+                    };
+
                     console.log("---uploading metadata to arweave---");
 
                     const metadataTransaction = await arweave.createTransaction(
@@ -212,7 +217,7 @@ const Draw: NextPage = () => {
                     console.log("---metadata upload finished 🚀 🚀 ---");
 
                     // * mint NFT
-                    await mintNFT(metaURL);
+                    await mintNFT(metaURL, postData);
                     setShowLoading(false);
                   }
                 } catch (err) {
@@ -230,7 +235,7 @@ const Draw: NextPage = () => {
     }
   };
 
-  const mintNFT = async (meta: string | undefined) => {
+  const mintNFT = async (meta: string | undefined, postData: Object) => {
     console.log("---minting NFT---");
     const connection = new Connection("devnet");
     const { solana } = window;
@@ -243,6 +248,12 @@ const Draw: NextPage = () => {
     });
     console.log(mintNFTResponse);
     console.log("---NFT minted sucessfully 🟢---");
+    axios
+      .post("https://mint-nft-backend.herokuapp.com/nft", postData, {
+        withCredentials: true,
+      })
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
     setShowSuccess(true);
   };
 

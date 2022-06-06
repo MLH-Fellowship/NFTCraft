@@ -23,9 +23,10 @@ const Header: NextPage = () => {
 
     if (solana) {
       const response = await solana.connect();
-      console.log(response, solana);
       console.log("Connected with Public Key:", response.publicKey.toString());
       onSetWalletAddress(response.publicKey.toString());
+    } else {
+      alert("Please Install Phantom!!");
     }
   };
 
