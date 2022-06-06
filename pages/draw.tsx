@@ -19,6 +19,7 @@ import {
 } from "react-sketch-canvas";
 import Arweave from "arweave";
 import { actions, Connection } from "@metaplex/js";
+import { useAppSelector } from "../hooks/hooks";
 
 const Draw: NextPage = () => {
   const [canvasProps, setCanvasProps] = useState<
@@ -40,10 +41,8 @@ const Draw: NextPage = () => {
     withTimestamp: true,
     allowOnlyPointerType: "all",
   });
-  const [currentSelectedTBItem, setCurrentSelectedTBItem] =
-    useState<string>("");
-  const [currentSelectedTColor, setCurrentSelectedColor] = useState<string>("");
   const canvasRef = createRef<ReactSketchCanvasRef>();
+  const walletAddress = useAppSelector((state) => state.wallet.walletAddress);
 
   // Canvas Handlers
   const onPenHandler = () => {
@@ -83,7 +82,6 @@ const Draw: NextPage = () => {
     }
 
     // Wallet credentials
-
     const wallet = {};
 
     const arweave = Arweave.init({
@@ -281,7 +279,6 @@ const Draw: NextPage = () => {
             </DrawCanvasToolBoxButton>
           </DrawCanvasToolBox>
           <MintButton onClick={onGetCanvasImageHandler}>Mint</MintButton>
-          <MintButton onClick={connectWallet}>Connect Wallet</MintButton>
           <DrawCanvasColorDrawer>
             <ColorItem
               bg="#78e0dc"
