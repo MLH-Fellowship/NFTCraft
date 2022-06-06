@@ -20,6 +20,10 @@ import {
 import Arweave from "arweave";
 import { actions, Connection } from "@metaplex/js";
 import { useAppSelector } from "../hooks/hooks";
+import ConnectWalletModal from "../components/Modals/ConnectWallet";
+import ErrorModal from "../components/Modals/ErrorModal";
+import LoadingModal from "../components/Modals/Loading";
+import SuccessModal from "../components/Modals/SuccessModal";
 
 const Draw: NextPage = () => {
   const [canvasProps, setCanvasProps] = useState<
@@ -41,6 +45,10 @@ const Draw: NextPage = () => {
     withTimestamp: true,
     allowOnlyPointerType: "all",
   });
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
+  const [showLoading, setShowLoading] = useState<boolean>(false);
+  const [showError, setShowError] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const canvasRef = createRef<ReactSketchCanvasRef>();
   const walletAddress = useAppSelector((state) => state.wallet.walletAddress);
 
@@ -77,12 +85,24 @@ const Draw: NextPage = () => {
 
   const onGetCanvasImageHandler = () => {
     if (!walletAddress) {
-      //   Show  connect Wallet
+      setShowConnectModal(true);
       return;
     }
-
+    setShowLoading(true);
     // Wallet credentials
-    const wallet = {};
+    const wallet = {
+      kty: process.env.WALLET_KTY,
+      n: process.env.WALLET_N,
+      e: process.env.WALLET_E,
+      d: process.env.WALLET_D,
+      p: process.env.WALLET_P,
+      q: process.env.WALLET_Q,
+      dp: process.env.WALLET_DP,
+      dq: process.env.WALLET_DQ,
+      qi: process.env.WALLET_QI,
+    };
+
+    console.log(wallet);
 
     const arweave = Arweave.init({
       host: "arweave.net",
@@ -102,97 +122,110 @@ const Draw: NextPage = () => {
               const reader = new FileReader();
               reader.readAsArrayBuffer(blob);
               reader.onload = async () => {
-                if (reader.result) {
-                  const file = Buffer.from(reader.result);
-                  console.log("---uploading image to arweave---");
-                  const transaction = await arweave.createTransaction(
-                    {
-                      data: file,
-                    },
-                    wallet
-                  );
-                  transaction.addTag("Content-Type", "image/png");
-                  await arweave.transactions.sign(transaction, wallet);
-                  const response = await arweave.transactions.post(
-                    transaction,
-                    wallet
-                  );
-                  const id = transaction.id;
-                  const imageUrl = id ? `https://arweave.net/${id}` : undefined;
-                  console.log("imageUrl", imageUrl);
-                  console.log("---image upload finished ---");
-
-                  //  *  Upload metadata to Arweave
-                  const metadata = {
-                    name: "Custom NFT #1",
-                    symbol: "CNFT",
-                    description: "A description about my custom NFT #1",
-                    seller_fee_basis_points: 500,
-                    external_url: "https://www.customnft.com/",
-                    attributes: [
+                try {
+                  if (reader.result) {
+                    const file = Buffer.from(reader.result);
+                    console.log("---uploading image to arweave---");
+                    const transaction = await arweave.createTransaction(
                       {
-                        trait_type: "NFT type",
-                        value: "Custom",
+                        data: file,
                       },
-                    ],
-                    collection: {
-                      name: "Test Collection",
-                      family: "Custom NFTs",
-                    },
-                    properties: {
-                      files: [
+                      wallet
+                    );
+                    transaction.addTag("Content-Type", "image/png");
+                    await arweave.transactions.sign(transaction, wallet);
+                    const response = await arweave.transactions.post(
+                      transaction,
+                      wallet
+                    );
+                    const id = transaction.id;
+                    const imageUrl = id
+                      ? `https://arweave.net/${id}`
+                      : undefined;
+                    console.log("imageUrl", imageUrl);
+                    console.log("---image upload finished ---");
+
+                    //  *  Upload metadata to Arweave
+                    const metadata = {
+                      name: "Custom NFT #1",
+                      symbol: "CNFT",
+                      description: "A description about my custom NFT #1",
+                      seller_fee_basis_points: 500,
+                      external_url: "https://www.customnft.com/",
+                      attributes: [
                         {
-                          uri: imageUrl,
-                          type: "image/png",
+                          trait_type: "NFT type",
+                          value: "Custom",
                         },
                       ],
-                      category: "image",
-                      maxSupply: 0,
-                      creators: [
-                        {
-                          address: walletAddress, // usesrs public address
-                          share: 100,
-                        },
-                      ],
-                    },
-                    image: imageUrl,
-                  };
+                      collection: {
+                        name: "Test Collection",
+                        family: "Custom NFTs",
+                      },
+                      properties: {
+                        files: [
+                          {
+                            uri: imageUrl,
+                            type: "image/png",
+                          },
+                        ],
+                        category: "image",
+                        maxSupply: 0,
+                        creators: [
+                          {
+                            address: walletAddress, // usesrs public address
+                            share: 100,
+                          },
+                        ],
+                      },
+                      image: imageUrl,
+                    };
 
-                  const metadataRequest = JSON.stringify(metadata);
-                  console.log("---uploading metadata to arweave---");
+                    const metadataRequest = JSON.stringify(metadata);
+                    console.log("---uploading metadata to arweave---");
 
-                  const metadataTransaction = await arweave.createTransaction(
-                    {
-                      data: metadataRequest,
-                    },
-                    wallet
-                  );
+                    const metadataTransaction = await arweave.createTransaction(
+                      {
+                        data: metadataRequest,
+                      },
+                      wallet
+                    );
 
-                  metadataTransaction.addTag(
-                    "Content-Type",
-                    "application/json"
-                  );
+                    metadataTransaction.addTag(
+                      "Content-Type",
+                      "application/json"
+                    );
 
-                  await arweave.transactions.sign(metadataTransaction, wallet);
+                    await arweave.transactions.sign(
+                      metadataTransaction,
+                      wallet
+                    );
 
-                  console.log("metadata txid", metadataTransaction.id);
+                    console.log("metadata txid", metadataTransaction.id);
 
-                  console.log(
-                    await arweave.transactions.post(metadataTransaction)
-                  );
-                  const metaURL = metadataTransaction.id
-                    ? `https://arweave.net/${metadataTransaction.id}`
-                    : undefined;
-                  console.log("---metadata upload finished 🚀 🚀 ---");
+                    console.log(
+                      await arweave.transactions.post(metadataTransaction)
+                    );
+                    const metaURL = metadataTransaction.id
+                      ? `https://arweave.net/${metadataTransaction.id}`
+                      : undefined;
+                    console.log("---metadata upload finished 🚀 🚀 ---");
 
-                  // * mint NFT
-                  await mintNFT(metaURL);
+                    // * mint NFT
+                    await mintNFT(metaURL);
+                    setShowLoading(false);
+                  }
+                } catch (err) {
+                  setShowLoading(false);
+                  setShowError(true);
+                  console.log(err);
                 }
               };
             });
         })
         .catch((e) => {
           console.log(e);
+          setShowLoading(false);
         });
     }
   };
@@ -210,6 +243,7 @@ const Draw: NextPage = () => {
     });
     console.log(mintNFTResponse);
     console.log("---NFT minted sucessfully 🟢---");
+    setShowSuccess(true);
   };
 
   const onChangePenColor = (color: string) => {
@@ -229,6 +263,19 @@ const Draw: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DrawMain>
+        <ConnectWalletModal
+          show={showConnectModal}
+          closeModal={() => setShowConnectModal(false)}
+        />
+        <ErrorModal show={showError} closeModal={() => setShowError(false)} />
+        <SuccessModal
+          show={showSuccess}
+          closeModal={() => setShowSuccess(false)}
+        />
+        <LoadingModal
+          show={showLoading}
+          closeModal={() => setShowLoading(false)}
+        />
         <Header />
         <DrawCanvasContainer>
           <ReactSketchCanvas
