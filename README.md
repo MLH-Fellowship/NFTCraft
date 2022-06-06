@@ -1,3 +1,9 @@
+## NFT-CRAFT
+NFT Craft is an all-in-one destination for people unaware to the Web 3.0 world and want to own a cool NFT. 
+<br><br>
+**NFT-Craft** gives people the power to draw their own cool NFTs and mint them with ease. Also users can easily connect their wallet with one click and approve transactions on go!
+
+![Landing Page - NFT CRAFT](./styles/Home/Main_page.png "Main Page")
 ## Getting Started
 
 First install all the dependencies:
@@ -13,3 +19,7 @@ yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+
+***Cheers!***
