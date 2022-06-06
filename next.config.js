@@ -18,6 +18,9 @@ const nextConfig = {
     WALLET_QI: process.env.WALLET_QI,
     BACKEND_URL: process.env.BACKEND_URL,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 module.exports = nextConfig;
