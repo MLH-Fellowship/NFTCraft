@@ -1,10 +1,5 @@
 import styled from "styled-components";
 
-function getColor() {
-  const index = Math.floor(Math.random() * 6);
-  return COLOR_ARRAY[index];
-}
-
 export const CollectionsMain = styled.main`
   min-height: 100vh;
   background-color: #191919;
