@@ -16,6 +16,7 @@ const nextConfig = {
     WALLET_DP: process.env.WALLET_DP,
     WALLET_DQ: process.env.WALLET_DQ,
     WALLET_QI: process.env.WALLET_QI,
+    BACKEND_URL: process.env.BACKEND_URL,
   },
 };
 

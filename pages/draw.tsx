@@ -249,9 +249,7 @@ const Draw: NextPage = () => {
     console.log(mintNFTResponse);
     console.log("---NFT minted sucessfully 🟢---");
     axios
-      .post("https://mint-nft-backend.herokuapp.com/nft", postData, {
-        withCredentials: true,
-      })
+      .post(process.env.BACKEND_URL, postData)
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
     setShowSuccess(true);
