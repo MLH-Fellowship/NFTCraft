@@ -59,8 +59,8 @@ const Collections: NextPage = () => {
             <LoadingModal show={loading} closeModal={() => setLoading(false)} />
             <ErrorModal show={error} closeModal={() => setError(false)} />
             <CollectionContainer>
-              {nftCollections.map((item) => (
-                <CollectionCard key={item.address}>
+              {nftCollections.map((item, index) => (
+                <CollectionCard key={index}>
                   <CollectionCardImageContainer>
                     <CollectionCardImage alt="image" src={item.imageUrl} />
                   </CollectionCardImageContainer>
